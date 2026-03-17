@@ -273,8 +273,18 @@ class RestClientHelper {
         def statusCode = statusLine.getStatusCode()
 
         if (!successRange.contains(statusCode)) {
-            throw new Exception("HTTP request failed with a response code of ${statusCode}: "
-                + "${statusLine.getReasonPhrase()}: " + response.entity?.content?.text)
+            // Only consume the response body when we are about to throw.
+            // Successful callers may parse or stream the entity afterwards.
+            String responseBody = response.entity ? EntityUtils.toString(response.getEntity()) : ""
+            String errorMessage = "HTTP request failed with a response code of ${statusCode}: ${statusLine.getReasonPhrase()}: ${responseBody}"
+
+            if (statusCode == 413) {
+                errorMessage += "\nThe uploaded file exceeds the request size limit enforced by the AS360 server or its reverse proxy. "
+                errorMessage += "If nginx fronts AS360, increase client_max_body_size above the APK/IPAX size and retry. "
+                errorMessage += "This limit cannot be bypassed from the plugin."
+            }
+
+            throw new Exception(errorMessage)
         }
 
         return response

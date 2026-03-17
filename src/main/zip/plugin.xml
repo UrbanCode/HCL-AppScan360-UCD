@@ -37,6 +37,12 @@
                      label="Login Key Secret"
                      description="The API key secret to authenticate with AS360." />
       </property>
+      <property name="validateSSL">
+        <property-ui type="checkBox"
+                     label="Validate SSL Certificate"
+                     default-value="true"
+                     description="Enable TLS certificate validation for the AS360 server. Clear this only for test environments that use self-signed or untrusted certificates." />
+      </property>
       <property name="apkFileLocation" required="true">
         <property-ui type="textBox"
                      label="APK File Location"
@@ -429,6 +435,12 @@
         <property-ui type="secureBox"
                      label="Login Key Secret"
                      description="The API key secret to authenticate with AS360." />
+      </property>
+      <property name="validateSSL">
+        <property-ui type="checkBox"
+                     label="Validate SSL Certificate"
+                     default-value="true"
+                     description="Enable TLS certificate validation for the AS360 server. Clear this only for test environments that use self-signed or untrusted certificates." />
       </property>
       <property name="ipaFileLocation" required="true">
         <property-ui type="textBox"
