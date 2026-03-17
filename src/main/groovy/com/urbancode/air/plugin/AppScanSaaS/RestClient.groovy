@@ -306,7 +306,9 @@ public abstract class RestClient {
 
         String fileId = null
         String url = API_FILE_UPLOAD
+        BigDecimal fileSizeMb = (file.length() / (1024 * 1024)).setScale(2, BigDecimal.ROUND_HALF_UP)
         println("[Action] Sending POST request to ${this.baseUrl}$url.")
+        println("[Action] Uploading file '${file.name}' (${fileSizeMb} MB).")
 
         restHelper.removeRequestHeader("Content-Type")  // browser must determine correct multipart entity content type
         def response = restHelper.doPostRequest(url, entityBuilder.build())
