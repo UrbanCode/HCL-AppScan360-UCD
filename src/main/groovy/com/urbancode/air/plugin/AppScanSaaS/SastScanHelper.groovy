@@ -11,7 +11,6 @@ package com.urbancode.air.plugin.AppScanSaaS
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import com.urbancode.air.AirPluginTool;
 import com.urbancode.air.plugin.AppScanSaaS.RestClient
 import com.urbancode.air.plugin.AppScanSaaS.ScanType
 

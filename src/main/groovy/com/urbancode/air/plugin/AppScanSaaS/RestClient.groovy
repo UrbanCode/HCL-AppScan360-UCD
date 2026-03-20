@@ -84,15 +84,13 @@ public abstract class RestClient {
 			println "[Warning] SSL certificate validation is disabled for this step execution."
 		}
 		String userServer = props.containsKey("userServer") ? props["userServer"] : props["baseUrlApp"]
-        if (userServer.substring(userServer.length() - 2, userServer.length()) != 'eu') {
-            		String userServerPort = props.containsKey("userServerPort") ? props["userServerPort"] : "443"
-                    this.baseUrl = "https://" + userServer + ":" +  userServerPort
-                    this.baseUrl = "https://" + userServer
-                    this.restHelper =  new RestClientHelper(baseUrl, trustAllCerts)
-        } else {
-            this.baseUrl = "https://" + userServer
-            this.restHelper =  new RestClientHelper(baseUrl, trustAllCerts)
+        if (userServer == null || userServer.trim().isEmpty()) {
+            throw new IllegalArgumentException("[Error] Missing AS360 server value. Set the 'baseUrlApp' (Base AS360 URL) step property.")
         }
+
+        userServer = userServer.trim()
+        this.baseUrl = "https://" + userServer
+        this.restHelper = new RestClientHelper(baseUrl, trustAllCerts)
 
 		
         String os = System.getProperty('os.name')
