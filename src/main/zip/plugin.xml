@@ -14,7 +14,7 @@
 </description>
     <tag>Utilities/HCL AppScan 360</tag>
   </header>
-  <step-type name="Start Android Mobile Analyzer AS360 Scan">
+  <!-- <step-type name="Start Android Mobile Analyzer AS360 Scan">
     <description>Starts a new Android Mobile Analyzer AS360 Scan, using HCL AppScan 360. This step will generate the 'ScanId' output property.</description>
     <properties>
       <property name="applicationId" required="true">
@@ -132,7 +132,7 @@
       <arg file="${PLUGIN_INPUT_PROPS}"/>
       <arg file="${PLUGIN_OUTPUT_PROPS}"/>
     </command>
-  </step-type>
+  </step-type> -->
   <step-type name="Start Dynamic Analyzer AS360 Scan">
     <description>Starts a new Dynamic Analyzer AS360 Scan, using HCL AppScan 360.
         This step will generate the 'ScanId' output property.</description>
@@ -412,7 +412,7 @@
       <arg file="${PLUGIN_OUTPUT_PROPS}"/>
     </command>
   </step-type>
-  <step-type name="Start iOS Analyzer AS360 Scan">
+  <!-- <step-type name="Start iOS Analyzer AS360 Scan">
 	<description>Starts a new iOS Analyzer AS360 Scan, using HCL AppScan on 
         Cloud. This step will generate the 'ScanId' output property.</description>
     <properties>
@@ -531,7 +531,7 @@
       <arg file="${PLUGIN_INPUT_PROPS}"/>
       <arg file="${PLUGIN_OUTPUT_PROPS}"/>
     </command>
-  </step-type>
+  </step-type> -->
 
   <step-type name="Create AS360 Presence">
     <description>Create and start a new presence. To access a private site server you must 
@@ -548,6 +548,17 @@
         <property-ui type="secureBox"
                      label="Login Key Secret"
                      description="The API key secret to authenticate with AS360." />
+      </property>
+      <property name="validateSSL">
+        <property-ui type="checkBox"
+                     label="Validate SSL Certificate"
+                     default-value="true"
+                     description="Enable TLS certificate validation for the AS360 server. Clear this only for test environments that use self-signed or untrusted certificates." />
+      </property>
+      <property name="baseUrlApp" required="true">
+        <property-ui type="textBox"
+                     label="Base AS360 URL"
+                     description="Please enter a base AS360 URL. Ex- cloud.appscan.com, cloud.appscan.com/eu." />
       </property>
       <property name="startPresence">
         <property-ui type="checkBox"
@@ -639,6 +650,17 @@
                      label="Login Key Secret"
                      description="The API key secret to authenticate with AS360." />
       </property>
+      <property name="validateSSL">
+        <property-ui type="checkBox"
+                     label="Validate SSL Certificate"
+                     default-value="true"
+                     description="Enable TLS certificate validation for the AS360 server. Clear this only for test environments that use self-signed or untrusted certificates." />
+      </property>
+      <property name="baseUrlApp" required="true">
+        <property-ui type="textBox"
+                     label="Base AS360 URL"
+                     description="Please enter a base AS360 URL. Ex- cloud.appscan.com, cloud.appscan.com/eu." />
+      </property>
       <property name="presenceId" required="false">
         <property-ui type="textBox"
                      label="Presence ID"
@@ -680,6 +702,17 @@
         <property-ui type="secureBox"
                      label="Login Key Secret"
                      description="The API key secret to authenticate with AS360." />
+      </property>
+      <property name="validateSSL">
+        <property-ui type="checkBox"
+                     label="Validate SSL Certificate"
+                     default-value="true"
+                     description="Enable TLS certificate validation for the AS360 server. Clear this only for test environments that use self-signed or untrusted certificates." />
+      </property>
+      <property name="baseUrlApp" required="true">
+        <property-ui type="textBox"
+                     label="Base AS360 URL"
+                     description="Please enter a base AS360 URL. Ex- cloud.appscan.com, cloud.appscan.com/eu." />
       </property>
       <property name="presenceId" required="false">
         <property-ui type="textBox"
