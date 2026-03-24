@@ -41,7 +41,7 @@
         <property-ui type="checkBox"
                      label="Validate SSL Certificate"
                      default-value="true"
-                     description="Enable TLS certificate validation for the AS360 server. Clear this only for test environments that use self-signed or untrusted certificates." />
+                     description="Enable TLS certificate validation for plugin REST API calls to AS360. This does not disable certificate validation inside the downloaded Presence binary, which still requires a trusted server certificate chain." />
       </property>
       <property name="apkFileLocation" required="true">
         <property-ui type="textBox"
@@ -607,6 +607,17 @@
                      description="Specify an ID of an existing presence, which allows you to run
                         scans on apps not connected to the internet or require a proxy server
                         to make a connection. The presence must be accessible to the user."/>
+      </property>
+      <property name="validateSSL">
+        <property-ui type="checkBox"
+                     label="Validate SSL Certificate"
+                     default-value="true"
+                     description="Enable TLS certificate validation for plugin REST API calls to AS360. This does not disable certificate validation inside the downloaded Presence binary, which still requires a trusted server certificate chain." />
+      </property>
+      <property name="baseUrlApp" required="true">
+        <property-ui type="textBox"
+                     label="Base AS360 URL"
+                     description="Please enter a base AS360 URL. Ex- cloud.appscan.com, cloud.appscan.com/eu." />
       </property>
       <property name="renewKey">
         <property-ui type="checkBox"
