@@ -71,8 +71,8 @@ public abstract class RestClient {
 
     private static final String NEW_KEY = "NewKey"
 
-    private static final String Linux_x86_64 = "/Linux_x86_64"
-    private static final String Win_x86_64 = "/Win_x86_64"
+    private static final String Linux_x64 = "/Linux_x64"
+    private static final String Win_x64 = "/Win_x64"
 
     private static final int MinReportSize = 1024
 
@@ -383,10 +383,23 @@ public abstract class RestClient {
 
             def presencesData = getPresences()
 
-            println("[OK] Current presences: ${presencesData}.")
+            def presencesList = (presencesData instanceof Map && presencesData.containsKey("Items"))
+                ? (presencesData.Items ?: [])
+                : (presencesData ?: [])
+
+            def targetPresence = presencesList.find { presence ->
+                presence?.Id == presenceId
+            }
+
+            if (targetPresence != null) {
+                println("[OK] Presence status for ${presenceId}: ${targetPresence?.Status}.")
+            }
+            else {
+                println("[OK] Presence id ${presenceId} not found in current poll.")
+            }
 
             //verify that expected presence exists and online
-            boolean idExists = presencesData.any( { presence -> return (presence.Id == presenceId && presence.Status == "Active") })
+            boolean idExists = (targetPresence?.Status == "Active")
 
             if (idExists) {
                 println "[OK] Found active presence with id: ${presenceId}."
@@ -408,6 +421,22 @@ public abstract class RestClient {
         presencesData = restHelper.parseResponse(response)
 
         return presencesData
+    }
+
+    protected String summarizePresences(def presencesList) {
+        int total = (presencesList instanceof Collection) ? presencesList.size() : 0
+        if (total == 0) {
+            return "count=0"
+        }
+
+        def sample = presencesList.take(5).collect { presence ->
+            String id = presence?.Id ?: "<no-id>"
+            String name = presence?.PresenceName ?: "<no-name>"
+            String status = presence?.Status ?: "<no-status>"
+            return "${name}(${status}, ${id})"
+        }
+
+        return "count=${total}, sample=${sample}"
     }
 
     public String startDastScan(
@@ -617,7 +646,13 @@ public abstract class RestClient {
 
     private void downloadSingleReportType(String scanId, String reportType) {
         String createReportUrl = String.format(API_CREATE_SECURITY_REPORT, REPORT_SCOPE_SCAN, scanId)
-        String createReportBody = new JsonBuilder([Configuration: [ReportFileType: reportType]]).toString()
+        String createReportBody
+        if(reportType == REPORT_TYPE_PDF) {
+            createReportBody = new JsonBuilder(["ApplyPolicies":"None","Configuration":["ReportFileType":"Pdf","Title":"string","Notes":"string","Locale":"string","Summary":true,"Details":true,"Discussion":true,"Overview":true,"TableOfContent":true,"History":true,"Coverage":true,"MinimizeDetails":true,"Articles":true]]).toString()
+        } else {
+            createReportBody = new JsonBuilder([Configuration: [ReportFileType: reportType]]).toString()
+        }
+         
 
         println("[Action] Sending POST request to ${this.baseUrl}$createReportUrl for ${reportType} report creation.")
         def createResponse = restHelper.doPostRequest(createReportUrl, createReportBody)
@@ -751,8 +786,8 @@ public abstract class RestClient {
 
         String url = API_PRESENCES + "/" + presenceId + "/" + NEW_KEY
 
-        println("[Action] Sending POST request to ${this.baseUrl}$url.")
-        HttpResponse response = restHelper.doPostRequest(url, null)
+        println("[Action] Sending GET request to ${this.baseUrl}$url.")
+        HttpResponse response = restHelper.doGetRequest(url)
 
         println("[OK] Response status line: ${response.statusLine}.")
 
@@ -762,12 +797,14 @@ public abstract class RestClient {
 
         File keyFile = new File(serviceDirectory, "AppScanPresence.key")
         try {
-            boolean deleted = keyFile.delete();
-            if (deleted) {
-                println("[OK] Deleted presence key file ${keyFile.getAbsolutePath()}.")
-                keyFile.getParentFile().mkdirs();
-                keyFile.createNewFile();
+            if (keyFile.exists()) {
+                boolean deleted = keyFile.delete();
+                if (deleted) {
+                    println("[OK] Deleted presence key file ${keyFile.getAbsolutePath()}.")
+                }
             }
+            keyFile.getParentFile().mkdirs();
+            keyFile.createNewFile();
         } catch (Exception e) {
             println "Failed deleting old presence key file ${keyFile.getAbsolutePath()} with exception: ${e.getMessage()}"
         }
@@ -780,13 +817,13 @@ public abstract class RestClient {
     public void downloadAppscanPresence(String serviceDirectory, boolean isWindows, String presenceId) {
         println("[Action] Downloading Appscan Presence with ID ${presenceId}.")
 
-        String url = API_PRESENCES + "/${presenceId}/Download" + (isWindows ? Win_x86_64 : Linux_x86_64)
+        String url = API_PRESENCES + "/${presenceId}/Download" + (isWindows ? Win_x64 : Linux_x64)
 
         File serviceDir = new File(serviceDirectory)
 
-        println("[Action] Sending POST request to ${this.baseUrl}$url.")
+        println("[Action] Sending GET request to ${this.baseUrl}$url.")
         restHelper.addRequestHeader("Accept", "application/zip")
-        HttpResponse response = restHelper.doPostRequest(url, null)
+        HttpResponse response = restHelper.doGetRequest(url)
 
         InputStream zip = response.getEntity().getContent()
         serviceDir.deleteDir()
@@ -798,10 +835,13 @@ public abstract class RestClient {
             println("[Action] Deleting all existing presences.")
 
             def presencesData = getPresences()
+            def presencesList = (presencesData instanceof Map && presencesData.containsKey("Items"))
+                ? (presencesData.Items ?: [])
+                : (presencesData ?: [])
 
-            println("[OK] Current presences: ${presencesData}.")
+            println("[OK] Current presences summary: ${summarizePresences(presencesList)}.")
 
-            presencesData.each { presence ->
+            presencesList.each { presence ->
                 String url = API_PRESENCES + "/" + presence.Id
                 println("[Action] Sending DELETE request to ${baseUrl}$url.")
                 println("[Action] Deleting presence with ID: ${presence.Id}.")
